@@ -235,7 +235,7 @@ export class DashboardComponent implements OnInit {
         }
       }]
     };
-    console.log('✅ Gráfico 3 inicializado');
-    console.log('✅ Todos los gráficos inicializados correctamente');
+    console.log('Gráfico 3 inicializado');
+    console.log('Todos los gráficos inicializados correctamente');
   }
 }
