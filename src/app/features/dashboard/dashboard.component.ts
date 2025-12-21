@@ -17,10 +17,9 @@ import {
 import { CanvasRenderer } from 'echarts/renderers';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { DashboardStats } from '../../core/models/dashboard.model';
-import { Router, NavigationEnd } from '@angular/router'; // ✅ Agregar
-import { filter } from 'rxjs/operators'; // ✅ Agregar
+import { Router, NavigationEnd } from '@angular/router'; 
+import { filter } from 'rxjs/operators'; 
 
-// Registrar componentes necesarios de ECharts
 echarts.use([
   TitleComponent,
   TooltipComponent,
@@ -51,7 +50,7 @@ echarts.use([
 })
 export class DashboardComponent implements OnInit {
   private dashboardService = inject(DashboardService);
-  private router = inject(Router); // ✅ Agregar Router
+  private router = inject(Router);
   
   stats = signal<DashboardStats | null>(null);
   loading = signal(true);
@@ -66,7 +65,7 @@ export class DashboardComponent implements OnInit {
     console.log('Dashboard iniciado');
     this.cargarEstadisticas();
     
-    // ✅ NUEVO: Recargar cuando se navega al dashboard
+    //Recargar cuando se navega al dashboard
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
@@ -84,13 +83,13 @@ export class DashboardComponent implements OnInit {
     
     this.dashboardService.obtenerEstadisticas().subscribe({
       next: (data) => {
-        console.log('✅ Estadísticas recibidas:', data);
+        console.log('Estadísticas recibidas:', data);
         this.stats.set(data);
         this.inicializarGraficos(data);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error al cargar estadísticas:', error);
+        console.error('Error al cargar estadísticas:', error);
         this.error.set('No se pudieron cargar las estadísticas. Verifica que el backend esté corriendo.');
         this.loading.set(false);
       }
@@ -139,7 +138,7 @@ export class DashboardComponent implements OnInit {
         itemStyle: { color: '#667eea' }
       }]
     };
-    console.log('✅ Gráfico 1 inicializado');
+    console.log('Gráfico 1 inicializado');
 
     // Gráfico: Estado de órdenes activas
     const totalOrdenes = (stats.ordenesPendientes || 0) + (stats.ordenesEnProceso || 0) + (stats.ordenesListas || 0) + (stats.ordenesEntregadas || 0);
@@ -151,9 +150,9 @@ export class DashboardComponent implements OnInit {
       },
       legend: { 
         orient: 'vertical', 
-        right: '5%',  // ✅ Más margen a la derecha
+        right: '5%',  
         top: 'center',
-        itemGap: 15,  // ✅ Más espacio entre items
+        itemGap: 15,  
         textStyle: {
           fontSize: 13,
           fontWeight: 500
@@ -161,8 +160,8 @@ export class DashboardComponent implements OnInit {
       },
       series: [{
         type: 'pie',
-        radius: ['40%', '65%'],  // ✅ Radio más pequeño
-        center: ['40%', '50%'],  // ✅ Centrar más a la izquierda
+        radius: ['40%', '65%'],
+        center: ['40%', '50%'],  
         avoidLabelOverlap: true,
         itemStyle: { 
           borderRadius: 8, 
@@ -173,7 +172,7 @@ export class DashboardComponent implements OnInit {
           show: true,
           formatter: '{b}\n{c}',
           fontSize: 12,
-          // ✅ NUEVO: Configurar posición de etiquetas
+          
           position: 'outer',
           alignTo: 'none',
           edgeDistance: 15,
@@ -181,8 +180,8 @@ export class DashboardComponent implements OnInit {
         },
         labelLine: {
           show: true,
-          length: 15,      // ✅ Línea corta
-          length2: 10,     // ✅ Segunda línea corta
+          length: 15,     
+          length2: 10,     
           smooth: false,
           lineStyle: {
             width: 1
@@ -205,7 +204,7 @@ export class DashboardComponent implements OnInit {
         ]
       }]
     };
-    console.log('✅ Gráfico 2 inicializado');
+    console.log('Gráfico 2 inicializado');
 
     // Gráfico: Ingresos mensuales 2024
     this.chartIngresosMensuales = {

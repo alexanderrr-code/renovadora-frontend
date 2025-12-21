@@ -150,7 +150,7 @@ export class OrdenesListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'updated') {
-        console.log('✅ Orden actualizada desde detalle, recargando lista...');
+        console.log('Orden actualizada desde detalle, recargando lista...');
         this.cargarOrdenes();
       }
     });
@@ -160,8 +160,8 @@ export class OrdenesListComponent implements OnInit {
 
     this.ordenService.obtenerPorId(orden.id).subscribe({
       next: (ordenCompleta) => {
-        console.log('📦 Orden completa obtenida para editar:', ordenCompleta);
-        console.log('📊 Items en la orden:', ordenCompleta.items?.length || 0);
+        console.log('Orden completa obtenida para editar:', ordenCompleta);
+        console.log('Items en la orden:', ordenCompleta.items?.length || 0);
         
         const dialogRef = this.dialog.open(OrdenFormDialogComponent, {
           width: '1000px',
@@ -172,13 +172,13 @@ export class OrdenesListComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(result => {
           if (result) {
-            console.log('✅ Orden editada, recargando lista...');
+            console.log('Orden editada, recargando lista...');
             this.cargarOrdenes();
           }
         });
       },
       error: (error) => {
-        console.error('❌ Error al obtener orden completa:', error);
+        console.error('Error al obtener orden completa:', error);
         this.snackBar.open('Error al cargar los datos de la orden', 'OK', { duration: 3000 });
       }
     });

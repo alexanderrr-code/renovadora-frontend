@@ -1,4 +1,4 @@
-// orden-form-dialog.component.ts - VERSIÓN CORREGIDA
+// orden-form-dialog.component.ts
 import { Component, OnInit, inject, signal, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -70,11 +70,11 @@ export class OrdenFormDialogComponent implements OnInit {
   fechaMinima = new Date();
 
   constructor(@Inject(MAT_DIALOG_DATA) public data?: { orden?: OrdenResponse }) {
-    console.log('🔍 Constructor - Modo:', data?.orden ? 'EDITAR' : 'CREAR');
+    console.log('Constructor - Modo:', data?.orden ? 'EDITAR' : 'CREAR');
     if (data?.orden) {
       this.mode = 'edit';
       this.ordenId = data.orden.id;
-      console.log('📦 Items en constructor:', data.orden.items);
+      console.log('Items en constructor:', data.orden.items);
     }
   }
 
@@ -87,7 +87,7 @@ export class OrdenFormDialogComponent implements OnInit {
   }
 
   initForm() {
-    // 🔑 CLAVE: Solo inicializar con un item vacío si estamos en modo CREATE
+    //Solo inicializar con un item vacío si estamos en modo CREATE
     const itemsIniciales = this.mode === 'create' ? [this.crearItemFormGroup()] : [];
     
     this.form = this.fb.group({
@@ -100,7 +100,7 @@ export class OrdenFormDialogComponent implements OnInit {
       adelanto: [{ value: null, disabled: true }]
     });
     
-    console.log('✅ Form inicializado con', this.items.length, 'items');
+    console.log('Form inicializado con', this.items.length, 'items');
   }
 
   setupAutocomplete() {
@@ -179,7 +179,7 @@ export class OrdenFormDialogComponent implements OnInit {
   }
 
   cargarClientes() {
-    console.log('📥 Cargando clientes...');
+    console.log('Cargando clientes...');
     this.clienteService.obtenerTodos().subscribe({
       next: (data) => {
         console.log('✅ Clientes cargados:', data.length);
@@ -189,13 +189,13 @@ export class OrdenFormDialogComponent implements OnInit {
         
         // Si estamos en modo edición, cargar los datos de la orden
         if (this.mode === 'edit' && this.data?.orden) {
-          console.log('🔄 Modo edición: cargando datos de orden...');
-          // ✅ Sin setTimeout - cargar inmediatamente
+          console.log('Modo edición: cargando datos de orden...');
+          // Sin setTimeout - cargar inmediatamente
           this.cargarDatosOrden(this.data.orden);
         }
       },
       error: (error) => {
-        console.error('❌ Error al cargar clientes:', error);
+        console.error('Error al cargar clientes:', error);
         this.loadingClientes.set(false);
         this.snackBar.open('Error al cargar clientes', 'OK', { duration: 3000 });
       }
@@ -203,22 +203,14 @@ export class OrdenFormDialogComponent implements OnInit {
   }
 
   cargarDatosOrden(orden: OrdenResponse) {
-    console.log('═══════════════════════════════════════');
-    console.log('🔍 CARGANDO DATOS DE ORDEN');
-    console.log('📦 Orden:', orden);
-    console.log('📊 Items a cargar:', orden.items);
-    console.log('📊 Cantidad:', orden.items?.length || 0);
 
-    // 1️⃣ Limpiar items existentes
-    console.log('🗑️ Limpiando items (cantidad actual:', this.items.length, ')');
+    // Limpiar items existentes
     while (this.items.length > 0) {
       this.items.removeAt(0);
     }
-    console.log('✅ Items limpiados (cantidad actual:', this.items.length, ')');
 
-    // 2️⃣ Agregar items de la orden
+    // Agregar items de la orden
     if (orden.items && orden.items.length > 0) {
-      console.log('📝 Agregando', orden.items.length, 'items...');
       orden.items.forEach((item, index) => {
         console.log(`  Item ${index + 1}:`, item);
         this.items.push(this.fb.group({
@@ -228,18 +220,18 @@ export class OrdenFormDialogComponent implements OnInit {
           detallesSolucion: [item.detallesSolucion || '']
         }));
       });
-      console.log('✅ Items agregados (cantidad actual:', this.items.length, ')');
-      console.log('📊 Valores:', this.items.value);
+      console.log('Items agregados (cantidad actual:', this.items.length, ')');
+      console.log('Valores:', this.items.value);
     } else {
-      console.warn('⚠️ No hay items en la orden');
+      console.warn('No hay items en la orden');
     }
 
-    // 3️⃣ Configurar fecha y hora
+    // Configurar fecha y hora
     const fechaEntrega = new Date(orden.fechaEntregaEstimada);
     const hora = fechaEntrega.getHours().toString().padStart(2, '0');
     const minuto = fechaEntrega.getMinutes().toString().padStart(2, '0');
 
-    // 4️⃣ Actualizar formulario
+    // Actualizar formulario
     this.form.patchValue({
       clienteId: orden.clienteId,
       fechaEntrega: fechaEntrega,
@@ -249,28 +241,21 @@ export class OrdenFormDialogComponent implements OnInit {
       adelanto: orden.adelanto
     });
 
-    // 5️⃣ Configurar cliente seleccionado
-    console.log('👤 Buscando cliente con ID:', orden.clienteId);
+    // Configurar cliente seleccionado
     const clienteEncontrado = this.clientes().find(c => c.id === orden.clienteId);
     if (clienteEncontrado) {
       this.clienteControl.setValue(clienteEncontrado);
       this.clienteSeleccionado = clienteEncontrado;
-      console.log('✅ Cliente encontrado:', clienteEncontrado.nombreCompleto);
     } else {
-      console.warn('⚠️ Cliente NO encontrado');
+
     }
 
-    // 6️⃣ Forzar actualización
-    console.log('🔄 Forzando actualización del formulario...');
+    // Forzar actualización
     this.items.updateValueAndValidity();
     this.form.updateValueAndValidity();
     this.cdr.detectChanges();
     
-    console.log('═══════════════════════════════════════');
-    console.log('✅ CARGA COMPLETADA');
-    console.log('Final - Items:', this.items.length);
-    console.log('Final - Cliente:', this.clienteSeleccionado?.nombreCompleto || 'NO SELECCIONADO');
-    console.log('═══════════════════════════════════════');
+
   }
 
   setupCalculoSaldo() {
@@ -359,7 +344,7 @@ export class OrdenFormDialogComponent implements OnInit {
       fechaEntregaEstimada: formatearFecha(fechaEntrega)
     };
 
-    console.log('📤 Request:', JSON.stringify(request, null, 2));
+    console.log(' Request:', JSON.stringify(request, null, 2));
 
     this.guardando.set(true);
 
@@ -370,7 +355,7 @@ export class OrdenFormDialogComponent implements OnInit {
           this.dialogRef.close(response);
         },
         error: (error) => {
-          console.error('❌ Error:', error);
+          console.error(' Error:', error);
           this.guardando.set(false);
           this.snackBar.open(error.error?.message || 'Error al crear la orden', 'OK', { duration: 3000 });
         }
@@ -382,7 +367,7 @@ export class OrdenFormDialogComponent implements OnInit {
           this.dialogRef.close(response);
         },
         error: (error) => {
-          console.error('❌ Error:', error);
+          console.error(' Error:', error);
           this.guardando.set(false);
           this.snackBar.open(error.error?.message || 'Error al actualizar la orden', 'OK', { duration: 3000 });
         }

@@ -1,4 +1,4 @@
-// orden-detail-dialog.component.ts - CORREGIDO FINAL
+// orden-detail-dialog.component.ts
 import { Component, inject, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
@@ -29,7 +29,7 @@ export class OrdenDetailDialogComponent {
   
   orden: OrdenResponse;
   readonly EstadoPago = EstadoPago;
-  // ✅ NUEVO: Flag para indicar si hubo cambios
+  //Flag para indicar si hubo cambios
   huboCambios = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { orden: OrdenResponse }) {
@@ -37,7 +37,7 @@ export class OrdenDetailDialogComponent {
   }
 
   cerrar() {
-    // ✅ CAMBIO: Notificar si hubo cambios
+    //Notificar si hubo cambios
     if (this.huboCambios) {
       this.dialogRef.close('updated');
     } else {

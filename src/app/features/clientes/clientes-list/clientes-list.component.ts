@@ -50,9 +50,8 @@ export class ClientesListComponent implements OnInit {
   
   searchTerm = signal('');
   
-  // ✅ CORREGIDO: Los nombres deben coincidir con matColumnDef en el HTML
   displayedColumns: string[] = [
-    'nombreCompleto',  // ← Era 'nombre'
+    'nombreCompleto',
     'telefono',
     'email',
     'totalOrdenes',
