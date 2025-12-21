@@ -128,7 +128,7 @@ export class OrdenFormDialogComponent implements OnInit {
   onClienteSeleccionado(cliente: ClienteResponse) {
     this.clienteSeleccionado = cliente;
     this.form.patchValue({ clienteId: cliente.id });
-    console.log('👤 Cliente seleccionado:', cliente);
+    console.log('Cliente seleccionado:', cliente);
   }
 
   limpiarCliente() {
@@ -182,7 +182,7 @@ export class OrdenFormDialogComponent implements OnInit {
     console.log('Cargando clientes...');
     this.clienteService.obtenerTodos().subscribe({
       next: (data) => {
-        console.log('✅ Clientes cargados:', data.length);
+        console.log('Clientes cargados:', data.length);
         this.clientes.set(data);
         this.loadingClientes.set(false);
         this.clienteControl.updateValueAndValidity();
