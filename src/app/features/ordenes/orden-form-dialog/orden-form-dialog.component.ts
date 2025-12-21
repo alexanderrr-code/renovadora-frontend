@@ -79,7 +79,7 @@ export class OrdenFormDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('🚀 ngOnInit');
+    console.log('ngOnInit');
     this.initForm();
     this.setupCalculoSaldo();
     this.setupAutocomplete();
