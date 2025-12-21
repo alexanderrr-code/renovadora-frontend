@@ -1,0 +1,24 @@
+<!-- navbar.component.html -->
+<mat-toolbar class="navbar">
+  <div class="navbar-brand">
+    <mat-icon class="brand-icon">loyalty</mat-icon>
+    <span>Renovadora Zapatería</span>
+  </div>
+  
+  <nav class="nav-menu">
+    <a mat-button routerLink="/dashboard" routerLinkActive="active" class="nav-btn">
+      <mat-icon>dashboard</mat-icon>
+      <span>Dashboard</span>
+    </a>
+    
+    <a mat-button routerLink="/ordenes" routerLinkActive="active" class="nav-btn">
+      <mat-icon>assignment</mat-icon>
+      <span>Órdenes</span>
+    </a>
+    
+    <a mat-button routerLink="/clientes" routerLinkActive="active" class="nav-btn">
+      <mat-icon>people</mat-icon>
+      <span>Clientes</span>
+    </a>
+  </nav>
+</mat-toolbar>

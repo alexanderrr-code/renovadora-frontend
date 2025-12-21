@@ -1,0 +1,110 @@
+<!-- cliente-form-dialog.component.html -->
+
+<div class="dialog-header">
+  <h2>
+    <mat-icon>{{ mode === 'create' ? 'person_add' : 'edit' }}</mat-icon>
+    {{ mode === 'create' ? 'Nuevo Cliente' : 'Editar Cliente' }}
+  </h2>
+  <button mat-icon-button (click)="onCancel()" [disabled]="guardando()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="dialog-content">
+    
+    <div class="section info-section">
+      <h3 class="section-title">
+        <mat-icon>person</mat-icon>
+        Información del Cliente
+      </h3>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre Completo</mat-label>
+        <input matInput formControlName="nombreCompleto" placeholder="Ej: Juan Pérez García">
+        @if (form.get('nombreCompleto')?.hasError('required') && form.get('nombreCompleto')?.touched) {
+          <mat-error>El nombre completo es obligatorio</mat-error>
+        }
+        @if (form.get('nombreCompleto')?.hasError('maxlength')) {
+          <mat-error>Máximo 100 caracteres</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Teléfono</mat-label>
+        <input matInput formControlName="telefono" placeholder="Ej: 987654321">
+        <mat-icon matPrefix>phone</mat-icon>
+        @if (form.get('telefono')?.hasError('required') && form.get('telefono')?.touched) {
+          <mat-error>El teléfono es obligatorio</mat-error>
+        }
+        @if (form.get('telefono')?.hasError('maxlength')) {
+          <mat-error>Máximo 20 caracteres</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email (Opcional)</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="Ej: cliente@email.com">
+        <mat-icon matPrefix>email</mat-icon>
+        @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+          <mat-error>Email no válido</mat-error>
+        }
+        @if (form.get('email')?.hasError('maxlength')) {
+          <mat-error>Máximo 100 caracteres</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Dirección (Opcional)</mat-label>
+        <input matInput formControlName="direccion" placeholder="Ej: Av. Los Olivos 123, Lima">
+        <mat-icon matPrefix>location_on</mat-icon>
+        @if (form.get('direccion')?.hasError('maxlength')) {
+          <mat-error>Máximo 200 caracteres</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Notas (Opcional)</mat-label>
+        <textarea 
+          matInput 
+          formControlName="notas" 
+          rows="3"
+          placeholder="Ej: Cliente frecuente, prefiere Yape..."
+        ></textarea>
+        <mat-icon matPrefix>note</mat-icon>
+      </mat-form-field>
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions">
+    <button 
+      type="button" 
+      mat-stroked-button 
+      (click)="onCancel()"
+      [disabled]="guardando()"
+    >
+      <mat-icon>close</mat-icon>
+      Cancelar
+    </button>
+    
+    <button 
+      type="submit" 
+      mat-raised-button 
+      color="primary"
+      [disabled]="guardando()"
+    >
+      @if (guardando()) {
+        <ng-container>
+            <mat-icon class="spinning">refresh</mat-icon>
+            Guardando...
+        </ng-container>
+      } @else {
+        <ng-container>
+            <mat-icon>save</mat-icon>
+            {{ mode === 'create' ? 'Crear Cliente' : 'Actualizar Cliente' }}
+        </ng-container>
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

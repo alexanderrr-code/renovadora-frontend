@@ -1,0 +1,146 @@
+<!-- pago-form-dialog.component.html -->
+
+<div class="dialog-header">
+  <h2>
+    <mat-icon>payments</mat-icon>
+    Registrar Pago
+  </h2>
+  <button mat-icon-button (click)="onCancel()" [disabled]="guardando()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="dialog-content">
+    
+    <!-- Información de la Orden -->
+    <div class="orden-info">
+      <div class="info-item">
+        <span class="info-label">Orden:</span>
+        <span class="info-value">{{ orden.codigo }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Cliente:</span>
+        <span class="info-value">{{ orden.clienteNombre }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Teléfono:</span>
+        <span class="info-value">{{ orden.clienteTelefono }}</span>
+      </div>
+    </div>
+
+    <!-- Resumen Financiero -->
+    <div class="resumen-financiero">
+      <div class="resumen-item">
+        <span class="resumen-label">Costo Total:</span>
+        <span class="resumen-value">S/. {{ orden.costoTotal | number:'1.2-2' }}</span>
+      </div>
+      <div class="resumen-item">
+        <span class="resumen-label">Adelanto Anterior:</span>
+        <span class="resumen-value">S/. {{ orden.adelanto | number:'1.2-2' }}</span>
+      </div>
+      <div class="resumen-item destacado">
+        <span class="resumen-label">Saldo Pendiente:</span>
+        <span class="resumen-value saldo">S/. {{ orden.saldoPendiente | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- Formulario de Pago -->
+    <div class="section pago-section">
+      <h3 class="section-title">
+        <mat-icon>account_balance_wallet</mat-icon>
+        Información del Pago
+      </h3>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Monto a Pagar</mat-label>
+        <input 
+          matInput 
+          type="number" 
+          formControlName="monto" 
+          step="0.01" 
+          min="0.01"
+          [max]="orden.saldoPendiente"
+          placeholder="0.00"
+        >
+        <span matPrefix>S/.&nbsp;</span>
+        @if (form.get('monto')?.hasError('required') && form.get('monto')?.touched) {
+          <mat-error>El monto es obligatorio</mat-error>
+        }
+        @if (form.get('monto')?.hasError('min')) {
+          <mat-error>El monto debe ser mayor a 0</mat-error>
+        }
+        @if (form.get('monto')?.hasError('max')) {
+          <mat-error>El monto no puede exceder el saldo pendiente</mat-error>
+        }
+        <mat-hint>Máximo: S/. {{ orden.saldoPendiente | number:'1.2-2' }}</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Método de Pago</mat-label>
+        <mat-select formControlName="metodoPago">
+          @for (metodo of metodosPago; track metodo) {
+            <mat-option [value]="metodo">{{ metodo }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Notas (Opcional)</mat-label>
+        <textarea 
+          matInput 
+          formControlName="notas" 
+          rows="2"
+          placeholder="Ej: Pago completo del saldo pendiente..."
+        ></textarea>
+      </mat-form-field>
+    </div>
+
+    <!-- Nuevo Saldo -->
+    @if (form.get('monto')?.value > 0) {
+      <div class="nuevo-saldo">
+        <span class="nuevo-saldo-label">Nuevo Saldo Pendiente:</span>
+        <span class="nuevo-saldo-value">
+          S/. {{ (orden.saldoPendiente - (form.get('monto')?.value || 0)) | number:'1.2-2' }}
+        </span>
+        @if ((orden.saldoPendiente - (form.get('monto')?.value || 0)) === 0) {
+          <span class="badge-pagado">✓ PAGADO COMPLETO</span>
+        }
+      </div>
+    }
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions">
+    <button 
+      type="button" 
+      mat-stroked-button 
+      (click)="onCancel()"
+      [disabled]="guardando()"
+    >
+      <mat-icon>close</mat-icon>
+      Cancelar
+    </button>
+    
+    <button 
+      type="submit" 
+      mat-raised-button 
+      color="primary"
+      [disabled]="guardando()"
+    >
+      @if (guardando()) {
+        <ng-container>
+            <mat-icon class="spinning">refresh</mat-icon>
+            Registrando...
+        </ng-container>
+
+      } @else {
+        <ng-container>
+            <mat-icon>save</mat-icon>
+            Registrar Pago
+        </ng-container>
+
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

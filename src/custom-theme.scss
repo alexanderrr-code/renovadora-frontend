@@ -1,0 +1,23 @@
+// custom-theme.scss - CORREGIDO PARA ANGULAR MATERIAL 18+
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme((
+    color: (
+      // ✅ SOLUCIÓN: Usar theme-type en lugar de paletas específicas
+      theme-type: light,
+      primary: mat.$azure-palette,  // Azul (reemplaza indigo)
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+}

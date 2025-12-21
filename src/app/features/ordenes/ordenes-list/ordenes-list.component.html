@@ -1,0 +1,210 @@
+<!-- ordenes-list.component.html -->
+<div class="container">
+  <mat-card>
+    <mat-card-header class="card-header">
+      <h2 class="card-title">
+        <mat-icon>assignment</mat-icon>
+        Órdenes de Trabajo
+      </h2>
+      <button mat-raised-button color="primary" (click)="abrirFormularioNuevaOrden()">
+        <mat-icon>add</mat-icon>
+        Nueva Orden
+      </button>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Barra de filtros -->
+      <div class="filter-bar">
+        <mat-form-field class="search-field" appearance="outline">
+          <mat-label>Buscar</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input 
+            matInput 
+            placeholder="Buscar por código, cliente o teléfono..."
+            (input)="buscar($any($event.target).value)"
+          >
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Estado</mat-label>
+          <mat-select 
+            [value]="estadoFiltro()" 
+            (selectionChange)="filtrarPorEstado($event.value)"
+          >
+            <mat-option value="TODOS">Todos los estados</mat-option>
+            <mat-option [value]="EstadoOrden.PENDIENTE">Pendiente</mat-option>
+            <mat-option [value]="EstadoOrden.EN_PROCESO">En Proceso</mat-option>
+            <mat-option [value]="EstadoOrden.LISTO">Listo</mat-option>
+            <mat-option [value]="EstadoOrden.ENTREGADO">Entregado</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Loading -->
+      @if (loading()) {
+        <div class="loading-container">
+          <mat-spinner></mat-spinner>
+          <p>Cargando órdenes...</p>
+        </div>
+      }
+
+      <!-- Tabla de órdenes -->
+      @if (!loading()) {
+        <div class="table-container">
+          <table mat-table [dataSource]="ordenesFiltradas()" class="ordenes-table">
+            <!-- Columna Código -->
+            <ng-container matColumnDef="codigo">
+              <th mat-header-cell *matHeaderCellDef>Código</th>
+              <td mat-cell *matCellDef="let orden">
+                <strong>{{ orden.codigo }}</strong>
+              </td>
+            </ng-container>
+
+            <!-- Columna Cliente -->
+            <ng-container matColumnDef="cliente">
+              <th mat-header-cell *matHeaderCellDef>Cliente</th>
+              <td mat-cell *matCellDef="let orden">
+                <div>{{ orden.clienteNombre }}</div>
+                <small class="text-muted">{{ orden.clienteTelefono }}</small>
+              </td>
+            </ng-container>
+
+            <!-- Columna N° Ítems -->
+            <ng-container matColumnDef="items">
+              <th mat-header-cell *matHeaderCellDef>N° Ítems</th>
+              <td mat-cell *matCellDef="let orden">
+                <mat-chip class="items-chip">
+                  {{ orden.items.length }} ítems
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <!-- Columna Estado -->
+            <ng-container matColumnDef="estado">
+              <th mat-header-cell *matHeaderCellDef>Estado</th>
+              <td mat-cell *matCellDef="let orden">
+                <span class="badge" [ngClass]="getEstadoBadgeClass(orden.estado)">
+                  {{ orden.estado }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Columna Pago -->
+            <ng-container matColumnDef="estadoPago">
+              <th mat-header-cell *matHeaderCellDef>Pago</th>
+              <td mat-cell *matCellDef="let orden">
+                <span class="badge" [ngClass]="getEstadoPagoBadgeClass(orden.estadoPago)">
+                  @if (orden.estadoPago === 'PAGADO') {
+                    Pagado
+                  } @else {
+                    Debe S/. {{ orden.saldoPendiente | number:'1.2-2' }}
+                  }
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Columna Fecha Ingreso -->
+            <ng-container matColumnDef="fechaIngreso">
+              <th mat-header-cell *matHeaderCellDef>Fecha Ingreso</th>
+              <td mat-cell *matCellDef="let orden">
+                <div>{{ formatearFechaCorta(orden.fechaIngreso) }}</div>
+                <small class="text-muted">{{ formatearHora(orden.fechaIngreso) }}</small>
+              </td>
+            </ng-container>
+
+            <!-- Columna Fecha Entrega -->
+            <ng-container matColumnDef="fechaEntrega">
+              <th mat-header-cell *matHeaderCellDef>Entrega</th>
+              <td mat-cell *matCellDef="let orden">
+                <div 
+                  [class.text-danger]="esOrdenAtrasada(orden)"
+                  [class.text-warning]="esOrdenHoy(orden)"
+                >
+                  <strong>{{ formatearFechaCorta(orden.fechaEntregaEstimada) }}</strong>
+                </div>
+                <small class="text-muted">{{ formatearHora(orden.fechaEntregaEstimada) }}</small>
+                @if (esOrdenAtrasada(orden)) {
+                  <div class="badge badge-debt" style="font-size: 10px; margin-top: 4px;">
+                    ATRASADA
+                  </div>
+                }
+                @if (esOrdenHoy(orden)) {
+                  <div class="badge badge-pending" style="font-size: 10px; margin-top: 4px;">
+                    HOY
+                  </div>
+                }
+              </td>
+            </ng-container>
+
+            <!-- Columna Total -->
+            <ng-container matColumnDef="total">
+              <th mat-header-cell *matHeaderCellDef>Total</th>
+              <td mat-cell *matCellDef="let orden">
+                <strong>S/. {{ orden.costoTotal | number:'1.2-2' }}</strong>
+              </td>
+            </ng-container>
+
+            <!-- Columna Acciones -->
+             <ng-container matColumnDef="acciones">
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
+              <td mat-cell *matCellDef="let orden">
+                <button mat-icon-button matTooltip="Ver detalle" (click)="verDetalle(orden)">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+
+                <!-- NUEVO: Cambiar estado -->
+                <button mat-icon-button 
+                  [matTooltip]="'Cambiar estado'" 
+                  [matMenuTriggerFor]="menuEstado">
+                  <mat-icon [ngClass]="getEstadoBadgeClass(orden.estado)">
+                    swap_horiz
+                  </mat-icon>
+                </button>
+                <mat-menu #menuEstado="matMenu">
+                  <button mat-menu-item (click)="cambiarEstado(orden, EstadoOrden.PENDIENTE)">
+                    <mat-icon>pending_actions</mat-icon> Pendiente
+                  </button>
+                  <button mat-menu-item (click)="cambiarEstado(orden, EstadoOrden.EN_PROCESO)">
+                    <mat-icon>engineering</mat-icon> En Proceso
+                  </button>
+                  <button mat-menu-item (click)="cambiarEstado(orden, EstadoOrden.LISTO)">
+                    <mat-icon>check_circle</mat-icon> Listo
+                  </button>
+                  <button mat-menu-item (click)="cambiarEstado(orden, EstadoOrden.ENTREGADO)">
+                    <mat-icon>task_alt</mat-icon> Entregado
+                  </button>
+                </mat-menu>
+
+                <button mat-icon-button matTooltip="Editar" (click)="editarOrden(orden)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+
+                <!-- NUEVO: Eliminar -->
+                <button mat-icon-button matTooltip="Eliminar" color="warn" 
+                  (click)="eliminarOrden(orden, $event)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr 
+              mat-row 
+              *matRowDef="let row; columns: displayedColumns;"
+              [class.row-atrasada]="esOrdenAtrasada(row)"
+              [class.row-hoy]="esOrdenHoy(row)"
+              [class.row-lista]="row.estado === 'LISTO'"
+            ></tr>
+          </table>
+
+          @if (ordenesFiltradas().length === 0) {
+            <div class="empty-state">
+              <mat-icon>assignment</mat-icon>
+              <p>No se encontraron órdenes</p>
+            </div>
+          }
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

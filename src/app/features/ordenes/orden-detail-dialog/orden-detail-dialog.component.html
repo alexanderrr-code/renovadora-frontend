@@ -1,0 +1,148 @@
+<!-- orden-detail-dialog.component.html - SIN BOTÓN EDITAR -->
+
+<div class="dialog-header">
+  <h2>
+    <mat-icon>description</mat-icon>
+    Detalle de Orden - {{ orden.codigo }}
+  </h2>
+  <button mat-icon-button (click)="cerrar()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dialog-content">
+  <!-- Información General -->
+  <div class="info-cards">
+    <mat-card class="info-card cliente-card">
+      <div class="info-label">CLIENTE</div>
+      <div class="info-value">{{ orden.clienteNombre }}</div>
+      <div class="info-extra">{{ orden.clienteTelefono }}</div>
+    </mat-card>
+
+    <mat-card class="info-card estado-card">
+      <div class="info-label">ESTADO</div>
+      <div class="info-value">
+        <span class="badge" [ngClass]="getEstadoBadgeClass()">{{ orden.estado }}</span>
+      </div>
+    </mat-card>
+
+    <mat-card class="info-card pago-card">
+      <div class="info-label">ESTADO DE PAGO</div>
+      <div class="info-value">
+        @if (orden.estadoPago === EstadoPago.PAGADO) {
+          <span class="badge badge-paid">Pagado</span>
+        } @else {
+          <span class="badge badge-debt">Debe S/. {{ orden.saldoPendiente | number:'1.2-2' }}</span>
+        }
+      </div>
+    </mat-card>
+
+    <mat-card class="info-card entrega-card">
+      <div class="info-label">ENTREGA ESTIMADA</div>
+      <div class="info-value" 
+           [class.text-danger]="esOrdenAtrasada()"
+           [class.text-warning]="esOrdenHoy()">
+        {{ formatearFechaCorta(orden.fechaEntregaEstimada) }}
+      </div>
+      <div class="info-extra">{{ formatearHora(orden.fechaEntregaEstimada) }}</div>
+      @if (esOrdenAtrasada()) {
+        <div class="alert-badge">⚠️ ATRASADA</div>
+      }
+      @if (esOrdenHoy()) {
+        <div class="alert-badge hoy">🕐 HOY</div>
+      }
+    </mat-card>
+  </div>
+
+  <!-- Fechas -->
+  <mat-card class="section-card">
+    <div class="fechas-grid">
+      <div class="fecha-item">
+        <div class="fecha-label">FECHA DE INGRESO</div>
+        <div class="fecha-value">{{ formatearFechaCompleta(orden.fechaIngreso) }}</div>
+      </div>
+      <div class="fecha-item">
+        <div class="fecha-label">FECHA DE ENTREGA</div>
+        <div class="fecha-value">{{ formatearFechaCompleta(orden.fechaEntregaEstimada) }}</div>
+      </div>
+    </div>
+  </mat-card>
+
+  <!-- Ítems -->
+  <h3 class="section-title">
+    <mat-icon>inventory_2</mat-icon>
+    Ítems de la Orden ({{ orden.items.length }})
+  </h3>
+
+  @for (item of orden.items; track item.id; let i = $index) {
+    <mat-card class="item-card">
+      <div class="item-header">
+        <strong>Ítem #{{ item.numeroItem }}</strong>
+      </div>
+
+      <div class="item-content">
+        <div class="item-row">
+          <div class="item-field">
+            <div class="field-label">TIPO DE ARTÍCULO</div>
+            <div class="field-value">{{ item.tipoArticulo }}</div>
+          </div>
+          <div class="item-field">
+            <div class="field-label">SERVICIO(S)</div>
+            <div class="field-value">{{ item.servicios }}</div>
+          </div>
+        </div>
+
+        <div class="item-field full-width">
+          <div class="field-label">DESCRIPCIÓN DEL PROBLEMA</div>
+          <div class="field-box problema-box">{{ item.descripcionProblema }}</div>
+        </div>
+
+        @if (item.detallesSolucion) {
+          <div class="item-field full-width">
+            <div class="field-label">SOLUCIÓN / DIAGNÓSTICO</div>
+            <div class="field-box solucion-box">{{ item.detallesSolucion }}</div>
+          </div>
+        }
+      </div>
+    </mat-card>
+  }
+
+  <!-- Resumen de Pago -->
+  <h3 class="section-title">
+    <mat-icon>payments</mat-icon>
+    Resumen Financiero
+  </h3>
+
+  <div class="pago-cards">
+    <mat-card class="pago-card total-card">
+      <div class="pago-label">COSTO TOTAL</div>
+      <div class="pago-value">S/. {{ orden.costoTotal | number:'1.2-2' }}</div>
+    </mat-card>
+
+    <mat-card class="pago-card adelanto-card">
+      <div class="pago-label">ADELANTO</div>
+      <div class="pago-value adelanto">S/. {{ orden.adelanto | number:'1.2-2' }}</div>
+    </mat-card>
+
+    <mat-card class="pago-card saldo-card" [class.saldo-pendiente]="orden.estadoPago === 'DEBE'">
+      <div class="pago-label">SALDO PENDIENTE</div>
+      <div class="pago-value saldo">S/. {{ orden.saldoPendiente | number:'1.2-2' }}</div>
+    </mat-card>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions class="dialog-actions">
+  <button mat-stroked-button (click)="cerrar()">
+    <mat-icon>close</mat-icon>
+    Cerrar
+  </button>
+
+  <!-- ✅ ELIMINADO: Botón "Editar Orden" (ya existe en la lista) -->
+
+  @if (orden.estadoPago === 'DEBE') {
+    <button mat-raised-button color="accent" (click)="registrarPago()">
+      <mat-icon>payments</mat-icon>
+      Registrar Pago
+    </button>
+  }
+</mat-dialog-actions>

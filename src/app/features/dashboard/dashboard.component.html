@@ -1,0 +1,192 @@
+<!-- dashboard.component.html -->
+<div class="container">
+  <div class="dashboard-header">
+    <h2>
+      <mat-icon>dashboard</mat-icon>
+      Panel de Control
+    </h2>
+    <span class="fecha-actual">{{ obtenerFechaActual() }}</span>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Cargando estadísticas...</p>
+    </div>
+  }
+
+  @if (!loading() && stats()) {
+    <!-- Alertas -->
+    @if (stats()!.ordenesAtrasadas > 0) {
+      <mat-card class="alert-card alert-danger">
+        <mat-icon>error</mat-icon>
+        <div>
+          <strong>¡{{ stats()!.ordenesAtrasadas }} Órdenes Atrasadas!</strong>
+          <div class="alert-subtitle">Requieren atención inmediata</div>
+        </div>
+      </mat-card>
+    }
+
+    @if (stats()!.ordenesSinRecoger > 0) {
+      <mat-card class="alert-card alert-warning">
+        <mat-icon>access_time</mat-icon>
+        <div>
+          <strong>{{ stats()!.ordenesSinRecoger }} Órdenes listas sin recoger</strong>
+          <div class="alert-subtitle">Más de 3 días desde que están terminadas</div>
+        </div>
+      </mat-card>
+    }
+
+    <!-- Stats del Día -->
+    <h3 class="section-title">
+      <mat-icon>today</mat-icon>
+      Hoy - {{ obtenerFechaActual() }}
+    </h3>
+
+    <div class="stats-row">
+      <mat-card class="stat-card orange">
+        <mat-icon class="stat-icon">schedule</mat-icon>
+        <div class="stat-label">Para Recoger Hoy</div>
+        <div class="stat-value">{{ stats()!.ordenesParaHoy }}</div>
+        <div class="stat-trend">
+          <mat-icon>warning</mat-icon>
+          Pendientes de entrega
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card green">
+        <mat-icon class="stat-icon">payments</mat-icon>
+        <div class="stat-label">Ingresos de Hoy</div>
+        <div class="stat-value">S/. {{ stats()!.ingresosHoy | number:'1.2-2' }}</div>
+        <div class="stat-trend">
+          <mat-icon>trending_up</mat-icon>
+          Pagos recibidos
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card red">
+        <mat-icon class="stat-icon">money_off</mat-icon>
+        <div class="stat-label">Total por Cobrar</div>
+        <div class="stat-value">S/. {{ stats()!.totalPorCobrar | number:'1.2-2' }}</div>
+        <div class="stat-trend">Saldos pendientes</div>
+      </mat-card>
+    </div>
+
+    <!-- Estado del Taller -->
+    <h3 class="section-title">
+      <mat-icon>build_circle</mat-icon>
+      Estado del Taller
+    </h3>
+
+    <div class="stats-row">
+      <mat-card class="stat-card blue">
+        <mat-icon class="stat-icon">pending_actions</mat-icon>
+        <div class="stat-label">Por Iniciar</div>
+        <div class="stat-value">{{ stats()!.ordenesPendientes }}</div>
+        <div class="stat-trend">Órdenes pendientes de trabajo</div>
+      </mat-card>
+
+      <mat-card class="stat-card purple">
+        <mat-icon class="stat-icon">engineering</mat-icon>
+        <div class="stat-label">En Proceso</div>
+        <div class="stat-value">{{ stats()!.ordenesEnProceso }}</div>
+        <div class="stat-trend">Actualmente en el taller</div>
+      </mat-card>
+
+      <mat-card class="stat-card green">
+        <mat-icon class="stat-icon">check_circle</mat-icon>
+        <div class="stat-label">Listas</div>
+        <div class="stat-value">{{ stats()!.ordenesListas }}</div>
+        <div class="stat-trend">Esperando retiro del cliente</div>
+      </mat-card>
+
+      <mat-card class="stat-card teal">
+        <mat-icon class="stat-icon">event_available</mat-icon>
+        <div class="stat-label">Esta Semana</div>
+        <div class="stat-value">{{ stats()!.ordenesCompletadasSemana }}</div>
+        <div class="stat-trend">Órdenes completadas</div>
+      </mat-card>
+    </div>
+
+    <!-- Resumen Financiero -->
+    <h3 class="section-title">
+      <mat-icon>account_balance_wallet</mat-icon>
+      Resumen Financiero
+    </h3>
+
+    <div class="stats-row">
+      <mat-card class="stat-card green">
+        <mat-icon class="stat-icon">calendar_today</mat-icon>
+        <div class="stat-label">Semana Actual</div>
+        <div class="stat-value">S/. {{ stats()!.ingresosSemana | number:'1.2-2' }}</div>
+        <div class="stat-trend">
+          <mat-icon>arrow_upward</mat-icon>
+          Ingresos semanales
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card purple">
+        <mat-icon class="stat-icon">date_range</mat-icon>
+        <div class="stat-label">Mes Actual</div>
+        <div class="stat-value">S/. {{ stats()!.ingresosMes | number:'1.2-2' }}</div>
+        <div class="stat-trend">Diciembre 2024</div>
+      </mat-card>
+
+      <mat-card class="stat-card red">
+        <mat-icon class="stat-icon">receipt_long</mat-icon>
+        <div class="stat-label">Total por Cobrar</div>
+        <div class="stat-value">S/. {{ stats()!.totalPorCobrar | number:'1.2-2' }}</div>
+        <div class="stat-trend">Saldos pendientes</div>
+      </mat-card>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="chart-grid">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>show_chart</mat-icon>
+            Ingresos Últimos 7 Días
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div echarts [options]="chartIngresos7Dias" class="chart-container"></div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>pie_chart</mat-icon>
+            Estado de Órdenes Activas
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div echarts [options]="chartEstadoOrdenes" class="chart-container"></div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>trending_up</mat-icon>
+          Ingresos Mensuales 2025
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div echarts [options]="chartIngresosMensuales" class="chart-container"></div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (!loading() && !stats()) {
+    <div class="error-container">
+      <mat-icon>error_outline</mat-icon>
+      <p>No se pudieron cargar las estadísticas</p>
+      <button mat-raised-button color="primary" (click)="cargarEstadisticas()">
+        Reintentar
+      </button>
+    </div>
+  }
+</div>

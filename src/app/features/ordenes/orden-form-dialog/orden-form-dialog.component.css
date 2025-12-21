@@ -1,0 +1,367 @@
+/* orden-form-dialog.component.css */
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 2px solid #f0f0f0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.dialog-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.dialog-header mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.dialog-header button {
+  color: white;
+}
+
+.dialog-content {
+  max-height: calc(90vh - 180px);
+  padding: 24px !important;
+}
+
+/* Secciones */
+.section {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #667eea;
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 16px 0;
+}
+
+.section-title mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Secciones específicas */
+.cliente-section {
+  background: #f0f3ff;
+  border-left: 4px solid #667eea;
+}
+
+.items-section {
+  background: #f9f9f9;
+}
+
+.entrega-section {
+  background: #fff3e0;
+  border-left: 4px solid #FF9800;
+}
+
+.pago-section {
+  background: #f0f3ff;
+  border-left: 4px solid #667eea;
+}
+
+/* Forms */
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: calc(50% - 8px);
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+mat-form-field {
+  margin-bottom: 8px;
+}
+
+/* Item Cards */
+.item-card {
+  margin-bottom: 16px;
+  border-left: 3px solid #667eea;
+}
+
+.item-header {
+  background: #667eea;
+  color: white;
+  padding: 12px 16px;
+  margin: -16px -16px 16px -16px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-header mat-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: white;
+}
+
+.item-header button {
+  color: white;
+}
+
+/* Tipo de Pago */
+.tipo-pago-group {
+  display: flex;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.tipo-pago-option {
+  flex: 1;
+  padding: 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.tipo-pago-option:hover {
+  border-color: #667eea;
+  background: #f0f3ff;
+}
+
+.tipo-pago-option.selected {
+  border-color: #667eea;
+  background: #f0f3ff;
+}
+
+.option-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.option-content mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+}
+
+.pagado-option.selected .option-content mat-icon {
+  color: #4CAF50;
+}
+
+.debe-option.selected .option-content mat-icon {
+  color: #F44336;
+}
+
+.option-title {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.option-content small {
+  color: #666;
+  font-size: 13px;
+}
+
+/* Adelanto */
+.adelanto-section {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.saldo-field input {
+  background: #fff3e0 !important;
+  font-weight: 700 !important;
+  color: #F57C00 !important;
+  font-size: 18px !important;
+}
+
+/* Total Display */
+.total-display {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 24px;
+  border-radius: 8px;
+  margin-top: 20px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-display span {
+  font-size: 14px;
+  opacity: 0.9;
+  letter-spacing: 0.5px;
+}
+
+.total-value {
+  font-size: 36px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.total-icon {
+  font-size: 64px !important;
+  width: 64px !important;
+  height: 64px !important;
+  opacity: 0.3;
+}
+
+/* Dialog Actions */
+.dialog-actions {
+  padding: 16px 24px !important;
+  border-top: 1px solid #f0f0f0;
+  justify-content: flex-end !important;
+  gap: 12px;
+}
+
+.dialog-actions button {
+  padding: 10px 24px;
+  font-size: 16px;
+}
+
+/* Spinning icon */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dialog-content {
+    padding: 16px !important;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .tipo-pago-group {
+    flex-direction: column;
+  }
+
+  .adelanto-section {
+    flex-direction: column;
+  }
+
+  .total-display {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .total-icon {
+    font-size: 48px !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+}
+
+/* Opciones del autocomplete */
+.cliente-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 8px 0;
+}
+
+.cliente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cliente-info strong {
+  font-size: 14px;
+  color: #333;
+}
+
+.cliente-info small {
+  font-size: 12px;
+  color: #999;
+}
+
+.cliente-chip {
+  background: #E3F2FD !important;
+  color: #1976D2 !important;
+  font-size: 11px !important;
+  height: 24px !important;
+  padding: 0 8px !important;
+  font-weight: 500 !important;
+}
+
+/* Mejorar apariencia del autocomplete */
+::ng-deep .mat-mdc-autocomplete-panel {
+  max-height: 300px !important;
+}
+
+::ng-deep .mat-mdc-option {
+  min-height: 60px !important;
+  padding: 8px 16px !important;
+}
+
+::ng-deep .mat-mdc-option:hover {
+  background-color: #f5f5f5 !important;
+}
+
+::ng-deep .mat-mdc-option.mat-selected {
+  background-color: #E3F2FD !important;
+}
+
+/* Campo de búsqueda activo */
+.full-width.mat-mdc-form-field-has-icon-suffix {
+  width: 100%;
+}
+
+/* Hint verde cuando está seleccionado */
+mat-hint {
+  color: #666;
+  font-size: 12px;
+}
+
+.full-width mat-hint:has-text("✅") {
+  color: #4CAF50;
+  font-weight: 500;
+}
