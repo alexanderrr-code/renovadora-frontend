@@ -1,5 +1,8 @@
 /* orden-form-dialog.component.css */
 
+/* ========================================
+   HEADER
+   ======================================== */
 .dialog-header {
   display: flex;
   justify-content: space-between;
@@ -29,17 +32,81 @@
   color: white;
 }
 
+/* ========================================
+   CONTENT
+   ======================================== */
 .dialog-content {
   max-height: calc(90vh - 180px);
   padding: 24px !important;
 }
 
-/* Secciones */
+/* ========================================
+   SKELETON LOADER - ✅ NUEVO
+   ======================================== */
+.skeleton-container {
+  animation: fadeIn 0.3s;
+}
+
+.skeleton-section {
+  margin-bottom: 24px;
+}
+
+.skeleton-title {
+  width: 200px;
+  height: 24px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.skeleton-field {
+  width: 100%;
+  height: 56px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.skeleton-fields-row {
+  display: flex;
+  gap: 16px;
+}
+
+.skeleton-fields-row .skeleton-field {
+  flex: 1;
+}
+
+.skeleton-item-card {
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ========================================
+   SECTIONS
+   ======================================== */
 .section {
   background: #f9f9f9;
   padding: 20px;
   border-radius: 12px;
   margin-bottom: 24px;
+  animation: fadeIn 0.3s;
 }
 
 .section-title {
@@ -65,7 +132,6 @@
   margin-bottom: 16px;
 }
 
-/* Secciones específicas */
 .cliente-section {
   background: #f0f3ff;
   border-left: 4px solid #667eea;
@@ -85,7 +151,9 @@
   border-left: 4px solid #667eea;
 }
 
-/* Forms */
+/* ========================================
+   FORMS
+   ======================================== */
 .full-width {
   width: 100%;
 }
@@ -104,10 +172,24 @@ mat-form-field {
   margin-bottom: 8px;
 }
 
-/* Item Cards */
+/* ========================================
+   ITEM CARDS
+   ======================================== */
 .item-card {
   margin-bottom: 16px;
   border-left: 3px solid #667eea;
+  animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .item-header {
@@ -132,7 +214,9 @@ mat-form-field {
   color: white;
 }
 
-/* Tipo de Pago */
+/* ========================================
+   TIPO DE PAGO
+   ======================================== */
 .tipo-pago-group {
   display: flex;
   gap: 16px;
@@ -151,11 +235,13 @@ mat-form-field {
 .tipo-pago-option:hover {
   border-color: #667eea;
   background: #f0f3ff;
+  transform: translateY(-2px);
 }
 
 .tipo-pago-option.selected {
   border-color: #667eea;
   background: #f0f3ff;
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
 }
 
 .option-content {
@@ -168,14 +254,11 @@ mat-form-field {
   font-size: 40px;
   width: 40px;
   height: 40px;
+  transition: transform 0.3s;
 }
 
-.pagado-option.selected .option-content mat-icon {
-  color: #4CAF50;
-}
-
-.debe-option.selected .option-content mat-icon {
-  color: #F44336;
+.tipo-pago-option.selected .option-content mat-icon {
+  transform: scale(1.1);
 }
 
 .option-title {
@@ -189,17 +272,14 @@ mat-form-field {
   font-size: 13px;
 }
 
-/* Adelanto */
+/* ========================================
+   ADELANTO
+   ======================================== */
 .adelanto-section {
   display: flex;
   gap: 16px;
   margin-top: 16px;
   animation: fadeIn 0.3s;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .saldo-field input {
@@ -209,7 +289,9 @@ mat-form-field {
   font-size: 18px !important;
 }
 
-/* Total Display */
+/* ========================================
+   TOTAL DISPLAY
+   ======================================== */
 .total-display {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 24px;
@@ -219,6 +301,7 @@ mat-form-field {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .total-display span {
@@ -240,65 +323,9 @@ mat-form-field {
   opacity: 0.3;
 }
 
-/* Dialog Actions */
-.dialog-actions {
-  padding: 16px 24px !important;
-  border-top: 1px solid #f0f0f0;
-  justify-content: flex-end !important;
-  gap: 12px;
-}
-
-.dialog-actions button {
-  padding: 10px 24px;
-  font-size: 16px;
-}
-
-/* Spinning icon */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.spinning {
-  animation: spin 1s linear infinite;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .dialog-content {
-    padding: 16px !important;
-  }
-
-  .form-row {
-    flex-direction: column;
-  }
-
-  .half-width {
-    width: 100%;
-  }
-
-  .tipo-pago-group {
-    flex-direction: column;
-  }
-
-  .adelanto-section {
-    flex-direction: column;
-  }
-
-  .total-display {
-    flex-direction: column;
-    text-align: center;
-    gap: 12px;
-  }
-
-  .total-icon {
-    font-size: 48px !important;
-    width: 48px !important;
-    height: 48px !important;
-  }
-}
-
-/* Opciones del autocomplete */
+/* ========================================
+   AUTOCOMPLETE
+   ======================================== */
 .cliente-option {
   display: flex;
   justify-content: space-between;
@@ -332,7 +359,67 @@ mat-form-field {
   font-weight: 500 !important;
 }
 
-/* Mejorar apariencia del autocomplete */
+/* ========================================
+   DIALOG ACTIONS
+   ======================================== */
+.dialog-actions {
+  padding: 16px 24px !important;
+  border-top: 1px solid #f0f0f0;
+  justify-content: flex-end !important;
+  gap: 12px;
+}
+
+.dialog-actions button {
+  padding: 10px 24px;
+  font-size: 16px;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .dialog-content {
+    padding: 16px !important;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .tipo-pago-group {
+    flex-direction: column;
+  }
+
+  .adelanto-section {
+    flex-direction: column;
+  }
+
+  .total-display {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+}
+
+/* ========================================
+   MATERIAL OVERRIDES
+   ======================================== */
 ::ng-deep .mat-mdc-autocomplete-panel {
   max-height: 300px !important;
 }
@@ -348,20 +435,4 @@ mat-form-field {
 
 ::ng-deep .mat-mdc-option.mat-selected {
   background-color: #E3F2FD !important;
-}
-
-/* Campo de búsqueda activo */
-.full-width.mat-mdc-form-field-has-icon-suffix {
-  width: 100%;
-}
-
-/* Hint verde cuando está seleccionado */
-mat-hint {
-  color: #666;
-  font-size: 12px;
-}
-
-.full-width mat-hint:has-text("✅") {
-  color: #4CAF50;
-  font-weight: 500;
 }

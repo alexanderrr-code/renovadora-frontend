@@ -1,5 +1,5 @@
 /*ordenes-list.component.ts*/
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -19,6 +19,7 @@ import { OrdenService } from '../../../core/services/orden.service';
 import { OrdenResponse, EstadoOrden, EstadoPago } from '../../../core/models/orden.model';
 import { OrdenFormDialogComponent } from '../orden-form-dialog/orden-form-dialog.component';
 import { OrdenDetailDialogComponent } from '../orden-detail-dialog/orden-detail-dialog.component';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-ordenes-list',
@@ -41,21 +42,22 @@ import { OrdenDetailDialogComponent } from '../orden-detail-dialog/orden-detail-
     MatMenuModule
   ],
   templateUrl: './ordenes-list.component.html',
-  styleUrl: './ordenes-list.component.css'
+  styleUrl: './ordenes-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush // OPTIMIZACIÓN
 })
 export class OrdenesListComponent implements OnInit {
-  private ordenService = inject(OrdenService);
-  private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private readonly ordenService = inject(OrdenService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
 
-  ordenes = signal<OrdenResponse[]>([]);
-  ordenesFiltradas = signal<OrdenResponse[]>([]);
-  loading = signal(true);
+  // Usar signals para mejor rendimiento
+  readonly ordenes = signal<OrdenResponse[]>([]);
+  readonly ordenesFiltradas = signal<OrdenResponse[]>([]);
+  readonly loading = signal(true);
+  readonly searchTerm = signal('');
+  readonly estadoFiltro = signal<string>('TODOS');
   
-  searchTerm = signal('');
-  estadoFiltro = signal<string>('TODOS');
-  
-  displayedColumns: string[] = [
+  readonly displayedColumns: string[] = [
     'codigo',
     'cliente',
     'items',
@@ -67,47 +69,52 @@ export class OrdenesListComponent implements OnInit {
     'acciones'
   ];
 
-  estadosOrden = Object.values(EstadoOrden);
-  
+  readonly estadosOrden = Object.values(EstadoOrden);
   readonly EstadoOrden = EstadoOrden;
   readonly EstadoPago = EstadoPago;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.cargarOrdenes();
   }
 
-  cargarOrdenes() {
+  cargarOrdenes(): void {
     this.loading.set(true);
-    this.ordenService.obtenerTodas().subscribe({
-      next: (data) => {
-        console.log('Órdenes cargadas:', data);
-        const ordenesOrdenadas = data.sort((a, b) => 
-          new Date(a.fechaEntregaEstimada).getTime() - new Date(b.fechaEntregaEstimada).getTime()
-        );
-        this.ordenes.set(ordenesOrdenadas);
-        this.aplicarFiltros();
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('Error al cargar órdenes:', error);
-        this.loading.set(false);
-      }
-    });
+    
+    this.ordenService.obtenerTodas()
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (data) => {
+          const ordenesOrdenadas = this.ordenarPorFechaEntrega(data);
+          this.ordenes.set(ordenesOrdenadas);
+          this.aplicarFiltros();
+        },
+        error: (error) => {
+          console.error('Error al cargar órdenes:', error);
+          this.mostrarError('Error al cargar las órdenes');
+        }
+      });
   }
 
-  buscar(termino: string) {
+  private ordenarPorFechaEntrega(ordenes: OrdenResponse[]): OrdenResponse[] {
+    return [...ordenes].sort((a, b) => 
+      new Date(a.fechaEntregaEstimada).getTime() - new Date(b.fechaEntregaEstimada).getTime()
+    );
+  }
+
+  buscar(termino: string): void {
     this.searchTerm.set(termino);
     this.aplicarFiltros();
   }
 
-  filtrarPorEstado(estado: string) {
+  filtrarPorEstado(estado: string): void {
     this.estadoFiltro.set(estado);
     this.aplicarFiltros();
   }
 
-  aplicarFiltros() {
+  aplicarFiltros(): void {
     let resultado = [...this.ordenes()];
 
+    // Filtrar por término de búsqueda
     const termino = this.searchTerm().toLowerCase();
     if (termino) {
       resultado = resultado.filter(orden =>
@@ -117,31 +124,31 @@ export class OrdenesListComponent implements OnInit {
       );
     }
 
+    // Filtrar por estado
     if (this.estadoFiltro() !== 'TODOS') {
-      resultado = resultado.filter(orden => 
-        orden.estado === this.estadoFiltro()
-      );
+      resultado = resultado.filter(orden => orden.estado === this.estadoFiltro());
     }
 
     this.ordenesFiltradas.set(resultado);
   }
 
-  abrirFormularioNuevaOrden() {
+  abrirFormularioNuevaOrden(): void {
     const dialogRef = this.dialog.open(OrdenFormDialogComponent, {
       width: '1000px',
       maxHeight: '90vh',
-      disableClose: true
+      disableClose: true,
+      data: { mode: 'create' } // ✅ Pasar modo explícitamente
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Nueva orden creada, recargando lista...');
         this.cargarOrdenes();
+        this.mostrarExito('Orden creada exitosamente');
       }
     });
   }
 
-  verDetalle(orden: OrdenResponse) {
+  verDetalle(orden: OrdenResponse): void {
     const dialogRef = this.dialog.open(OrdenDetailDialogComponent, {
       width: '1000px',
       maxHeight: '90vh',
@@ -150,100 +157,90 @@ export class OrdenesListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'updated') {
-        console.log('Orden actualizada desde detalle, recargando lista...');
         this.cargarOrdenes();
       }
     });
   }
 
-  editarOrden(orden: OrdenResponse) {
+  // OPTIMIZADO: Ya NO hace petición adicional, pasa la orden directamente
+  editarOrden(orden: OrdenResponse): void {
+    const dialogRef = this.dialog.open(OrdenFormDialogComponent, {
+      width: '1000px',
+      maxHeight: '90vh',
+      disableClose: true,
+      data: { 
+        mode: 'edit',
+        orden: orden // Pasar la orden directamente sin nueva petición
+      }
+    });
 
-    this.ordenService.obtenerPorId(orden.id).subscribe({
-      next: (ordenCompleta) => {
-        console.log('Orden completa obtenida para editar:', ordenCompleta);
-        console.log('Items en la orden:', ordenCompleta.items?.length || 0);
-        
-        const dialogRef = this.dialog.open(OrdenFormDialogComponent, {
-          width: '1000px',
-          maxHeight: '90vh',
-          disableClose: true,
-          data: { orden: ordenCompleta }
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-          if (result) {
-            console.log('Orden editada, recargando lista...');
-            this.cargarOrdenes();
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Error al obtener orden completa:', error);
-        this.snackBar.open('Error al cargar los datos de la orden', 'OK', { duration: 3000 });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.cargarOrdenes();
+        this.mostrarExito('Orden actualizada exitosamente');
       }
     });
   }
 
-  cambiarEstado(orden: OrdenResponse, nuevoEstado: EstadoOrden) {
+  cambiarEstado(orden: OrdenResponse, nuevoEstado: EstadoOrden): void {
     if (orden.estado === nuevoEstado) {
-      this.snackBar.open('La orden ya está en ese estado', 'OK', { duration: 3000 });
+      this.mostrarInfo('La orden ya está en ese estado');
       return;
     }
 
     this.ordenService.cambiarEstado(orden.id, nuevoEstado).subscribe({
-      next: (ordenActualizada) => {
-        this.snackBar.open(`Estado cambiado a ${nuevoEstado}`, 'OK', { duration: 3000 });
+      next: () => {
+        this.mostrarExito(`Estado cambiado a ${nuevoEstado}`);
         this.cargarOrdenes();
       },
       error: (error) => {
         console.error('Error al cambiar estado:', error);
-        this.snackBar.open('Error al cambiar el estado', 'OK', { duration: 3000 });
+        this.mostrarError('Error al cambiar el estado');
       }
     });
   }
 
-  eliminarOrden(orden: OrdenResponse, event: Event) {
+  eliminarOrden(orden: OrdenResponse, event: Event): void {
     event.stopPropagation();
 
-    const confirmar = confirm(
-      `¿Estás seguro de eliminar la orden ${orden.codigo}?\n\n` +
-      `Cliente: ${orden.clienteNombre}\n` +
-      `Total: S/. ${orden.costoTotal.toFixed(2)}\n\n` +
-      `Esta acción no se puede deshacer.`
-    );
+    const mensaje = `¿Eliminar la orden ${orden.codigo}?\n\n` +
+                   `Cliente: ${orden.clienteNombre}\n` +
+                   `Total: S/. ${orden.costoTotal.toFixed(2)}\n\n` +
+                   `Esta acción no se puede deshacer.`;
 
-    if (!confirmar) return;
+    if (!confirm(mensaje)) return;
 
     this.ordenService.eliminar(orden.id).subscribe({
       next: () => {
-        this.snackBar.open('Orden eliminada exitosamente', 'OK', { duration: 3000 });
+        this.mostrarExito('Orden eliminada exitosamente');
         this.cargarOrdenes();
       },
       error: (error) => {
         console.error('Error al eliminar orden:', error);
-        this.snackBar.open('Error al eliminar la orden', 'OK', { duration: 3000 });
+        this.mostrarError('Error al eliminar la orden');
       }
     });
   }
 
+  // Métodos de utilidad mejorados
   getEstadoIcon(estado: EstadoOrden): string {
-    switch (estado) {
-      case EstadoOrden.PENDIENTE: return 'pending_actions';
-      case EstadoOrden.EN_PROCESO: return 'engineering';
-      case EstadoOrden.LISTO: return 'check_circle';
-      case EstadoOrden.ENTREGADO: return 'task_alt';
-      default: return 'help';
-    }
+    const iconos: Record<EstadoOrden, string> = {
+      [EstadoOrden.PENDIENTE]: 'pending_actions',
+      [EstadoOrden.EN_PROCESO]: 'engineering',
+      [EstadoOrden.LISTO]: 'check_circle',
+      [EstadoOrden.ENTREGADO]: 'task_alt'
+    };
+    return iconos[estado] || 'help';
   }
 
   getEstadoBadgeClass(estado: EstadoOrden): string {
-    switch (estado) {
-      case EstadoOrden.PENDIENTE: return 'badge-pending';
-      case EstadoOrden.EN_PROCESO: return 'badge-process';
-      case EstadoOrden.LISTO: return 'badge-ready';
-      case EstadoOrden.ENTREGADO: return 'badge-delivered';
-      default: return '';
-    }
+    const clases: Record<EstadoOrden, string> = {
+      [EstadoOrden.PENDIENTE]: 'badge-pending',
+      [EstadoOrden.EN_PROCESO]: 'badge-process',
+      [EstadoOrden.LISTO]: 'badge-ready',
+      [EstadoOrden.ENTREGADO]: 'badge-delivered'
+    };
+    return clases[estado] || '';
   }
 
   getEstadoPagoBadgeClass(estadoPago: EstadoPago): string {
@@ -267,8 +264,7 @@ export class OrdenesListComponent implements OnInit {
   }
 
   formatearFecha(fecha: string): string {
-    const date = new Date(fecha);
-    return date.toLocaleDateString('es-PE', {
+    return new Date(fecha).toLocaleDateString('es-PE', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -278,8 +274,7 @@ export class OrdenesListComponent implements OnInit {
   }
 
   formatearFechaCorta(fecha: string): string {
-    const date = new Date(fecha);
-    return date.toLocaleDateString('es-PE', {
+    return new Date(fecha).toLocaleDateString('es-PE', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
@@ -287,10 +282,31 @@ export class OrdenesListComponent implements OnInit {
   }
 
   formatearHora(fecha: string): string {
-    const date = new Date(fecha);
-    return date.toLocaleTimeString('es-PE', {
+    return new Date(fecha).toLocaleTimeString('es-PE', {
       hour: '2-digit',
       minute: '2-digit'
+    });
+  }
+
+  // ✅ Mensajes centralizados
+  private mostrarExito(mensaje: string): void {
+    this.snackBar.open(mensaje, 'OK', { 
+      duration: 3000,
+      panelClass: ['snackbar-success']
+    });
+  }
+
+  private mostrarError(mensaje: string): void {
+    this.snackBar.open(mensaje, 'OK', { 
+      duration: 3000,
+      panelClass: ['snackbar-error']
+    });
+  }
+
+  private mostrarInfo(mensaje: string): void {
+    this.snackBar.open(mensaje, 'OK', { 
+      duration: 3000,
+      panelClass: ['snackbar-info']
     });
   }
 }

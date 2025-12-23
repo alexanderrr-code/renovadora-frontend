@@ -2,7 +2,10 @@
 // src/app/core/constants/api.constants.ts
 // para usar environment
 
-import { environment } from '../../../environments/environment';
+// para produccion
+import { environment } from '../../../environments/environment'; 
+// para desarrollo
+//import { environment } from '../../../environments/environment.development';
 
 export const API_URL = environment.apiUrl;
 

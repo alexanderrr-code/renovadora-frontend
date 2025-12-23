@@ -1,4 +1,4 @@
-<!-- orden-detail-dialog.component.html - SIN BOTÓN EDITAR -->
+<!-- orden-detail-dialog.component.html -->
 
 <div class="dialog-header">
   <h2>
@@ -136,8 +136,6 @@
     <mat-icon>close</mat-icon>
     Cerrar
   </button>
-
-  <!-- ✅ ELIMINADO: Botón "Editar Orden" (ya existe en la lista) -->
 
   @if (orden.estadoPago === 'DEBE') {
     <button mat-raised-button color="accent" (click)="registrarPago()">

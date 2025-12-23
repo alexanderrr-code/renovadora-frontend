@@ -1,300 +1,314 @@
 <!-- orden-form-dialog.component.html -->
 
+<!-- ✅ Header con icono dinámico -->
 <div class="dialog-header">
   <h2>
-    <mat-icon>add_circle</mat-icon>
-    {{ mode === 'create' ? 'Nueva Orden de Trabajo' : 'Editar Orden de Trabajo' }}
+    <mat-icon>{{ iconoModal }}</mat-icon>
+    {{ tituloModal }}
   </h2>
   <button mat-icon-button (click)="onCancel()" [disabled]="guardando()">
     <mat-icon>close</mat-icon>
   </button>
 </div>
 
+<!-- ✅ Barra de progreso mientras carga -->
+@if (cargandoDatos()) {
+  <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
+}
+
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
   <mat-dialog-content class="dialog-content">
     
-    <!-- Sección Cliente -->
-<!-- Reemplaza toda la sección cliente-section con esto: -->
+    <!-- ✅ SKELETON LOADER mientras carga -->
+    @if (cargandoDatos()) {
+      <div class="skeleton-container">
+        <!-- Skeleton Cliente -->
+        <div class="section skeleton-section">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-field"></div>
+        </div>
 
-    <div class="section cliente-section">
-      <h3 class="section-title">
-        <mat-icon>person</mat-icon>
-        Información del Cliente
-      </h3>
+        <!-- Skeleton Items -->
+        <div class="section skeleton-section">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-item-card">
+            <div class="skeleton-field"></div>
+            <div class="skeleton-field"></div>
+            <div class="skeleton-field"></div>
+          </div>
+        </div>
 
-      <!-- AUTOCOMPLETE INTEGRADO -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Buscar y seleccionar cliente</mat-label>
-        <mat-icon matPrefix>search</mat-icon>
-        <input 
-          type="text"
-          matInput
-          placeholder="Escribe nombre o teléfono..."
-          [formControl]="clienteControl"
-          [matAutocomplete]="auto"
-          required
-        >
-        @if (clienteSeleccionado) {
-          <button 
-            matSuffix 
-            mat-icon-button 
-            (click)="limpiarCliente()"
-            type="button"
-          >
-            <mat-icon>close</mat-icon>
-          </button>
-        }
-        <mat-autocomplete 
-          #auto="matAutocomplete" 
-          [displayWith]="displayCliente.bind(this)"
-          (optionSelected)="onClienteSeleccionado($event.option.value)"
-        >
-          @for (cliente of clientesFiltrados | async; track cliente.id) {
-            <mat-option [value]="cliente">
-              <div class="cliente-option">
-                <div class="cliente-info">
-                  <strong>{{ cliente.nombreCompleto }}</strong>
-                  <small>{{ cliente.telefono }}</small>
-                </div>
-                @if (cliente.totalOrdenes > 0) {
-                  <mat-chip class="cliente-chip">
-                    {{ cliente.totalOrdenes }} órdenes
-                  </mat-chip>
-                }
-              </div>
-            </mat-option>
-          }
-        </mat-autocomplete>
-        @if (!clienteSeleccionado && clienteControl.touched) {
-          <mat-error>Debe seleccionar un cliente de la lista</mat-error>
-        }
-        <mat-hint>
-          @if (clienteSeleccionado) {
-            Cliente seleccionado: {{ clienteSeleccionado.nombreCompleto }}
-          } @else {
-            Escribe para buscar por nombre o teléfono
-          }
-        </mat-hint>
-      </mat-form-field>
-    </div>
+        <!-- Skeleton Fecha -->
+        <div class="section skeleton-section">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-fields-row">
+            <div class="skeleton-field"></div>
+            <div class="skeleton-field"></div>
+          </div>
+        </div>
 
-    <!-- Sección Ítems -->
-    <div class="section items-section">
-      <div class="section-header">
+        <!-- Skeleton Pago -->
+        <div class="section skeleton-section">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-field"></div>
+        </div>
+      </div>
+    }
+
+    <!-- ✅ FORMULARIO REAL (se muestra cuando termina de cargar) -->
+    @if (!cargandoDatos()) {
+      <!-- Sección Cliente -->
+      <div class="section cliente-section">
         <h3 class="section-title">
-          <mat-icon>inventory_2</mat-icon>
-          Ítems a Reparar
+          <mat-icon>person</mat-icon>
+          Información del Cliente
         </h3>
-        <button 
-          type="button" 
-          mat-raised-button 
-          color="primary" 
-          (click)="agregarItem()"
-          [disabled]="guardando()"
-        >
-          <mat-icon>add</mat-icon>
-          Agregar Ítem
-        </button>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Buscar y seleccionar cliente</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input 
+            type="text"
+            matInput
+            placeholder="Escribe nombre o teléfono..."
+            [formControl]="clienteControl"
+            [matAutocomplete]="auto"
+            required
+          >
+          @if (clienteSeleccionado) {
+            <button 
+              matSuffix 
+              mat-icon-button 
+              (click)="limpiarCliente()"
+              type="button"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+          <mat-autocomplete 
+            #auto="matAutocomplete" 
+            [displayWith]="displayCliente.bind(this)"
+            (optionSelected)="onClienteSeleccionado($event.option.value)"
+          >
+            @for (cliente of clientesFiltrados | async; track cliente.id) {
+              <mat-option [value]="cliente">
+                <div class="cliente-option">
+                  <div class="cliente-info">
+                    <strong>{{ cliente.nombreCompleto }}</strong>
+                    <small>{{ cliente.telefono }}</small>
+                  </div>
+                  @if (cliente.totalOrdenes > 0) {
+                    <mat-chip class="cliente-chip">
+                      {{ cliente.totalOrdenes }} órdenes
+                    </mat-chip>
+                  }
+                </div>
+              </mat-option>
+            }
+          </mat-autocomplete>
+          @if (!clienteSeleccionado && clienteControl.touched) {
+            <mat-error>Debe seleccionar un cliente de la lista</mat-error>
+          }
+          <mat-hint>
+            @if (clienteSeleccionado) {
+              Cliente seleccionado: {{ clienteSeleccionado.nombreCompleto }}
+            } @else {
+              Escribe para buscar por nombre o teléfono
+            }
+          </mat-hint>
+        </mat-form-field>
       </div>
 
-      <div formArrayName="items">
-        @for (itemControl of items.controls; track $index; let i = $index) {
-          <mat-card class="item-card" [formGroupName]="i">
-            <mat-card-header class="item-header">
-              <mat-card-title>Ítem #{{ i + 1 }}</mat-card-title>
-              @if (items.length > 1) {
-                <button 
-                  type="button"
-                  mat-icon-button 
-                  color="warn"
-                  (click)="eliminarItem(i)"
-                  [disabled]="guardando()"
-                >
-                  <mat-icon>delete</mat-icon>
-                </button>
-              }
-            </mat-card-header>
+      <!-- Sección Ítems -->
+      <div class="section items-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <mat-icon>inventory_2</mat-icon>
+            Ítems a Reparar
+          </h3>
+          <button 
+            type="button" 
+            mat-raised-button 
+            color="primary" 
+            (click)="agregarItem()"
+            [disabled]="guardando()"
+          >
+            <mat-icon>add</mat-icon>
+            Agregar Ítem
+          </button>
+        </div>
 
-            <mat-card-content>
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>Tipo de Artículo</mat-label>
-                  <input matInput formControlName="tipoArticulo" placeholder="Ej: Zapatilla Nike, Bota de Cuero...">
-                  @if (itemControl.get('tipoArticulo')?.hasError('required') && itemControl.get('tipoArticulo')?.touched) {
-                    <mat-error>Campo obligatorio</mat-error>
-                  }
-                  <mat-hint>Describe el artículo específicamente</mat-hint>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>Servicio(s) a Realizar</mat-label>
-                  <input matInput formControlName="servicios" placeholder="Ej: Cosido y pegado, Cambio de cierre...">
-                  @if (itemControl.get('servicios')?.hasError('required') && itemControl.get('servicios')?.touched) {
-                    <mat-error>Campo obligatorio</mat-error>
-                  }
-                  <mat-hint>Puedes escribir varios servicios separados por coma</mat-hint>
-                </mat-form-field>
-              </div>
-
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Descripción del Problema</mat-label>
-                <textarea 
-                  matInput 
-                  formControlName="descripcionProblema" 
-                  rows="2"
-                  placeholder="Describe el daño o problema del artículo..."
-                ></textarea>
-                @if (itemControl.get('descripcionProblema')?.hasError('required') && itemControl.get('descripcionProblema')?.touched) {
-                  <mat-error>Campo obligatorio</mat-error>
+        <div formArrayName="items">
+          @for (itemControl of items.controls; track $index; let i = $index) {
+            <mat-card class="item-card" [formGroupName]="i">
+              <mat-card-header class="item-header">
+                <mat-card-title>Ítem #{{ i + 1 }}</mat-card-title>
+                @if (items.length > 1) {
+                  <button 
+                    type="button"
+                    mat-icon-button 
+                    color="warn"
+                    (click)="eliminarItem(i)"
+                    [disabled]="guardando()"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 }
-              </mat-form-field>
+              </mat-card-header>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Detalles de la Solución (Opcional)</mat-label>
-                <textarea 
-                  matInput 
-                  formControlName="detallesSolucion" 
-                  rows="2"
-                  placeholder="Explica al cliente qué se hará, materiales a usar, etc."
-                ></textarea>
-              </mat-form-field>
-            </mat-card-content>
-          </mat-card>
-        }
-      </div>
-    </div>
+              <mat-card-content>
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Tipo de Artículo</mat-label>
+                    <input matInput formControlName="tipoArticulo" placeholder="Ej: Zapatilla Nike, Bota de Cuero...">
+                    @if (itemControl.get('tipoArticulo')?.hasError('required') && itemControl.get('tipoArticulo')?.touched) {
+                      <mat-error>Campo obligatorio</mat-error>
+                    }
+                  </mat-form-field>
 
-    <!-- Sección Fecha de Entrega -->
-    <div class="section entrega-section">
-      <h3 class="section-title">
-        <mat-icon>event</mat-icon>
-        Fecha y Hora de Entrega
-      </h3>
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Servicio(s) a Realizar</mat-label>
+                    <input matInput formControlName="servicios" placeholder="Ej: Cosido y pegado, Cambio de cierre...">
+                    @if (itemControl.get('servicios')?.hasError('required') && itemControl.get('servicios')?.touched) {
+                      <mat-error>Campo obligatorio</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="half-width">
-          <mat-label>Fecha de Entrega Estimada</mat-label>
-          <input 
-            matInput 
-            [matDatepicker]="picker" 
-            formControlName="fechaEntrega" 
-            [min]="fechaMinima"
-            required
-            placeholder="Selecciona una fecha"
-            readonly
-          >
-          <mat-datepicker-toggle matIconSuffix [for]="picker">
-            <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
-          </mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-          @if (form.get('fechaEntrega')?.hasError('required') && form.get('fechaEntrega')?.touched) {
-            <mat-error>Debe seleccionar una fecha</mat-error>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Descripción del Problema</mat-label>
+                  <textarea 
+                    matInput 
+                    formControlName="descripcionProblema" 
+                    rows="2"
+                    placeholder="Describe el daño o problema..."
+                  ></textarea>
+                  @if (itemControl.get('descripcionProblema')?.hasError('required') && itemControl.get('descripcionProblema')?.touched) {
+                    <mat-error>Campo obligatorio</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Detalles de la Solución (Opcional)</mat-label>
+                  <textarea 
+                    matInput 
+                    formControlName="detallesSolucion" 
+                    rows="2"
+                    placeholder="Explica qué se hará..."
+                  ></textarea>
+                </mat-form-field>
+              </mat-card-content>
+            </mat-card>
           }
-          @if (form.get('fechaEntrega')?.hasError('matDatepickerMin')) {
-            <mat-error>La fecha no puede ser anterior a hoy</mat-error>
-          }
-          <mat-hint>Haz clic en el calendario</mat-hint>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="half-width">
-          <mat-label>Hora de Entrega</mat-label>
-          <input 
-            matInput 
-            type="time" 
-            formControlName="horaEntrega" 
-            required
-          >
-          <mat-icon matIconSuffix>schedule</mat-icon>
-          @if (form.get('horaEntrega')?.hasError('required') && form.get('horaEntrega')?.touched) {
-            <mat-error>Debe seleccionar una hora</mat-error>
-          }
-          @if (form.get('horaEntrega')?.hasError('formatoInvalido') && form.get('horaEntrega')?.touched) {
-            <mat-error>Formato de hora inválido</mat-error>
-          }
-          <mat-hint>Usa formato 24h (18:00 = 6:00 PM)</mat-hint>
-        </mat-form-field>
-      </div>
-
-      <!-- Ayuda visual para la hora -->
-      <div class="hora-helper">
-        <mat-icon>info</mat-icon>
-        <span>
-          <strong>Formato 24 horas:</strong> 
-          08:00 (8 AM) • 12:00 (12 PM) • 14:00 (2 PM) • 18:00 (6 PM) • 20:00 (8 PM)
-        </span>
-      </div>
-    </div>
-
-    <!-- Sección Pago -->
-    <div class="section pago-section">
-      <h3 class="section-title">
-        <mat-icon>payments</mat-icon>
-        Información de Pago
-      </h3>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Costo Total de la Orden</mat-label>
-        <input matInput type="number" formControlName="costoTotal" step="0.01" min="0" placeholder="0.00">
-        <span matTextPrefix>S/.&nbsp;</span>
-        @if (form.get('costoTotal')?.hasError('required') && form.get('costoTotal')?.touched) {
-          <mat-error>Campo obligatorio</mat-error>
-        }
-        @if (form.get('costoTotal')?.hasError('min')) {
-          <mat-error>El costo debe ser mayor a 0</mat-error>
-        }
-        <mat-hint>Ingresa el costo total manualmente</mat-hint>
-      </mat-form-field>
-
-      <mat-radio-group formControlName="tipoPago" class="tipo-pago-group">
-        <div class="tipo-pago-option pagado-option" [class.selected]="form.get('tipoPago')?.value === EstadoPago.PAGADO">
-          <mat-radio-button [value]="EstadoPago.PAGADO">
-            <div class="option-content">
-              <mat-icon>check_circle</mat-icon>
-              <div>
-                <div class="option-title">Pagado Completo</div>
-                <small>Cliente pagó el total</small>
-              </div>
-            </div>
-          </mat-radio-button>
         </div>
+      </div>
 
-        <div class="tipo-pago-option debe-option" [class.selected]="form.get('tipoPago')?.value === EstadoPago.DEBE">
-          <mat-radio-button [value]="EstadoPago.DEBE">
-            <div class="option-content">
-              <mat-icon>schedule</mat-icon>
-              <div>
-                <div class="option-title">Debe (Adelanto)</div>
-                <small>Cliente dio adelanto</small>
-              </div>
-            </div>
-          </mat-radio-button>
-        </div>
-      </mat-radio-group>
+      <!-- Sección Fecha -->
+      <div class="section entrega-section">
+        <h3 class="section-title">
+          <mat-icon>event</mat-icon>
+          Fecha y Hora de Entrega
+        </h3>
 
-      @if (form.get('tipoPago')?.value === EstadoPago.DEBE) {
-        <div class="adelanto-section">
+        <div class="form-row">
           <mat-form-field appearance="outline" class="half-width">
-            <mat-label>Adelanto Recibido</mat-label>
-            <input matInput type="number" formControlName="adelanto" step="0.01" min="0" placeholder="0.00">
-            <span matTextPrefix>S/.&nbsp;</span>
+            <mat-label>Fecha de Entrega Estimada</mat-label>
+            <input 
+              matInput 
+              [matDatepicker]="picker" 
+              formControlName="fechaEntrega" 
+              [min]="fechaMinima"
+              required
+              readonly
+            >
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if (form.get('fechaEntrega')?.hasError('required') && form.get('fechaEntrega')?.touched) {
+              <mat-error>Debe seleccionar una fecha</mat-error>
+            }
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="half-width saldo-field">
-            <mat-label>Saldo Pendiente</mat-label>
-            <input matInput [value]="saldoPendiente() | number:'1.2-2'" readonly>
-            <span matTextPrefix>S/.&nbsp;</span>
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Hora de Entrega</mat-label>
+            <input matInput type="time" formControlName="horaEntrega" required>
+            <mat-icon matIconSuffix>schedule</mat-icon>
+            @if (form.get('horaEntrega')?.hasError('required') && form.get('horaEntrega')?.touched) {
+              <mat-error>Debe seleccionar una hora</mat-error>
+            }
+            @if (form.get('horaEntrega')?.hasError('formatoInvalido')) {
+              <mat-error>Formato inválido</mat-error>
+            }
           </mat-form-field>
         </div>
-      }
-
-      <div class="total-display">
-        <div>
-          <span>TOTAL DE LA ORDEN</span>
-          <div class="total-value">S/. {{ form.get('costoTotal')?.value || 0 | number:'1.2-2' }}</div>
-        </div>
-        <mat-icon class="total-icon">receipt</mat-icon>
       </div>
-    </div>
+
+      <!-- Sección Pago -->
+      <div class="section pago-section">
+        <h3 class="section-title">
+          <mat-icon>payments</mat-icon>
+          Información de Pago
+        </h3>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Costo Total</mat-label>
+          <input matInput type="number" formControlName="costoTotal" step="0.01" min="0">
+          <span matTextPrefix>S/.&nbsp;</span>
+          @if (form.get('costoTotal')?.hasError('required') && form.get('costoTotal')?.touched) {
+            <mat-error>Campo obligatorio</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-radio-group formControlName="tipoPago" class="tipo-pago-group">
+          <div class="tipo-pago-option" [class.selected]="form.get('tipoPago')?.value === EstadoPago.PAGADO">
+            <mat-radio-button [value]="EstadoPago.PAGADO">
+              <div class="option-content">
+                <mat-icon>check_circle</mat-icon>
+                <div>
+                  <div class="option-title">Pagado Completo</div>
+                  <small>Cliente pagó el total</small>
+                </div>
+              </div>
+            </mat-radio-button>
+          </div>
+
+          <div class="tipo-pago-option" [class.selected]="form.get('tipoPago')?.value === EstadoPago.DEBE">
+            <mat-radio-button [value]="EstadoPago.DEBE">
+              <div class="option-content">
+                <mat-icon>schedule</mat-icon>
+                <div>
+                  <div class="option-title">Debe (Adelanto)</div>
+                  <small>Cliente dio adelanto</small>
+                </div>
+              </div>
+            </mat-radio-button>
+          </div>
+        </mat-radio-group>
+
+        @if (form.get('tipoPago')?.value === EstadoPago.DEBE) {
+          <div class="adelanto-section">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Adelanto Recibido</mat-label>
+              <input matInput type="number" formControlName="adelanto" step="0.01" min="0">
+              <span matTextPrefix>S/.&nbsp;</span>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width saldo-field">
+              <mat-label>Saldo Pendiente</mat-label>
+              <input matInput [value]="saldoPendiente() | number:'1.2-2'" readonly>
+              <span matTextPrefix>S/.&nbsp;</span>
+            </mat-form-field>
+          </div>
+        }
+
+        <div class="total-display">
+          <div>
+            <span>TOTAL DE LA ORDEN</span>
+            <div class="total-value">S/. {{ form.get('costoTotal')?.value || 0 | number:'1.2-2' }}</div>
+          </div>
+          <mat-icon class="total-icon">receipt</mat-icon>
+        </div>
+      </div>
+    }
 
   </mat-dialog-content>
 
@@ -313,18 +327,18 @@
       type="submit" 
       mat-raised-button 
       color="primary"
-      [disabled]="guardando()"
+      [disabled]="guardando() || cargandoDatos()"
     >
       @if (guardando()) {
         <ng-container>
-            <mat-icon class="spinning">refresh</mat-icon>
-            Guardando...
+        <mat-icon class="spinning">refresh</mat-icon>
+        Guardando...
         </ng-container>
 
       } @else {
         <ng-container>
-            <mat-icon>save</mat-icon>
-            {{ mode === 'create' ? 'Crear Orden' : 'Actualizar Orden' }}
+        <mat-icon>save</mat-icon>
+        {{ mode === 'create' ? 'Crear Orden' : 'Actualizar Orden' }}          
         </ng-container>
 
       }

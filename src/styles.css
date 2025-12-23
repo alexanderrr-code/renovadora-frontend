@@ -22,7 +22,64 @@ html, body {
   height: 100%;
 }
 
-/* Estilos globales para Material */
+/* ========================================
+   ✅ SNACKBARS PERSONALIZADOS (NUEVO)
+   ======================================== */
+::ng-deep .snackbar-success {
+  background: #4CAF50 !important;
+  color: white !important;
+}
+
+::ng-deep .snackbar-success .mdc-snackbar__label {
+  color: white !important;
+}
+
+::ng-deep .snackbar-success .mat-mdc-button {
+  color: white !important;
+}
+
+::ng-deep .snackbar-error {
+  background: #f44336 !important;
+  color: white !important;
+}
+
+::ng-deep .snackbar-error .mdc-snackbar__label {
+  color: white !important;
+}
+
+::ng-deep .snackbar-error .mat-mdc-button {
+  color: white !important;
+}
+
+::ng-deep .snackbar-info {
+  background: #2196F3 !important;
+  color: white !important;
+}
+
+::ng-deep .snackbar-info .mdc-snackbar__label {
+  color: white !important;
+}
+
+::ng-deep .snackbar-info .mat-mdc-button {
+  color: white !important;
+}
+
+::ng-deep .snackbar-warning {
+  background: #FF9800 !important;
+  color: white !important;
+}
+
+::ng-deep .snackbar-warning .mdc-snackbar__label {
+  color: white !important;
+}
+
+::ng-deep .snackbar-warning .mat-mdc-button {
+  color: white !important;
+}
+
+/* ========================================
+   MATERIAL DIALOG
+   ======================================== */
 .mat-mdc-dialog-panel {
   max-width: 90vw !important;
   max-height: 90vh !important;
@@ -32,7 +89,9 @@ html, body {
   border-radius: 12px !important;
 }
 
-/* Estilos para los badges */
+/* ========================================
+   BADGES
+   ======================================== */
 .badge {
   padding: 6px 12px;
   border-radius: 16px;
@@ -48,7 +107,9 @@ html, body {
 .badge-paid { background: #C8E6C9; color: #2E7D32; }
 .badge-debt { background: #FFCDD2; color: #C62828; }
 
-/* Animaciones */
+/* ========================================
+   ANIMACIONES
+   ======================================== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -64,7 +125,22 @@ html, body {
   animation: fadeIn 0.3s ease-in;
 }
 
-/* Estilos adicionales para mantener consistencia con el prototipo */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* ========================================
+   UTILIDADES
+   ======================================== */
 .container {
   max-width: 1400px;
   margin: 0 auto;
@@ -79,7 +155,24 @@ html, body {
   margin-bottom: 24px;
 }
 
-/* Botones personalizados para mantener el gradiente del prototipo */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.mt-3 { margin-top: 24px; }
+.mb-1 { margin-bottom: 8px; }
+.mb-2 { margin-bottom: 16px; }
+.mb-3 { margin-bottom: 24px; }
+
+/* ========================================
+   BOTONES PERSONALIZADOS
+   ======================================== */
 .btn-gradient {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -96,7 +189,13 @@ html, body {
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
-/* Stats Cards */
+.btn-gradient:active {
+  transform: translateY(0);
+}
+
+/* ========================================
+   STAT CARDS
+   ======================================== */
 .stat-card {
   background: white;
   border-radius: 12px;
@@ -105,6 +204,12 @@ html, body {
   border-left: 4px solid;
   position: relative;
   overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .stat-card.blue { border-left-color: #2196F3; }
@@ -113,3 +218,86 @@ html, body {
 .stat-card.purple { border-left-color: #9C27B0; }
 .stat-card.red { border-left-color: #f44336; }
 .stat-card.teal { border-left-color: #009688; }
+
+/* ========================================
+   SCROLLBAR PERSONALIZADO
+   ======================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}

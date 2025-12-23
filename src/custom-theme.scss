@@ -1,10 +1,10 @@
-// custom-theme.scss - CORREGIDO PARA ANGULAR MATERIAL 18+
+// custom-theme.scss
 @use '@angular/material' as mat;
 
 html {
   @include mat.theme((
     color: (
-      // ✅ SOLUCIÓN: Usar theme-type en lugar de paletas específicas
+      //Usar theme-type en lugar de paletas específicas
       theme-type: light,
       primary: mat.$azure-palette,  // Azul (reemplaza indigo)
       tertiary: mat.$blue-palette,
